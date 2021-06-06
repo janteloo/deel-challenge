@@ -1,56 +1,54 @@
 import { Router, Request, Response, NextFunction } from "express";
 import HttpException from "../exceptions/HttpException";
 import getProfile from "../middleware/getProfile";
-import ContractService from "../services/contractService";
+import JobService from "../services/jobService";
 import { validateNumberParameter } from "../helpers/paramsValidator";
 
 class ContractController {
-  public path = "/contracts";
+  public path = "/jobs";
 
-  private contractService: ContractService;
+  private jobService: JobService;
 
   public router = Router();
 
   constructor() {
     this.intializeRoutes();
-    this.contractService = new ContractService();
+    this.jobService = new JobService();
   }
 
   private intializeRoutes = () => {
-    this.router.get(`${this.path}/:id`, getProfile, this.getContract);
-    this.router.get(this.path, getProfile, this.getContracts);
+    this.router.get(`${this.path}/unpaid`, getProfile, this.getUnpaidJobs);
+    this.router.post(`${this.path}/:job_id/pay`, getProfile, this.payJob);
   };
 
-  getContract = async (
+  getUnpaidJobs = async (
     request: Request,
     response: Response,
     next: NextFunction
   ): Promise<unknown> => {
     const { profile } = request;
-    const { id } = request.params;
-    let contract = null;
     try {
-      const contractId = validateNumberParameter(id, "id");
-      contract = await this.contractService.getContract(contractId, profile.id);
-      if (!contract) {
-        throw new HttpException(404, "Contract could not be found");
-      }
-      return response.json(contract);
+      const jobs = await this.jobService.getUnpaidJobs(profile.id);
+      return response.json(jobs);
     } catch (error) {
       next(error);
     }
     return null;
   };
 
-  getContracts = async (
+  payJob = async (
     request: Request,
     response: Response,
     next: NextFunction
   ): Promise<unknown> => {
     const { profile } = request;
     try {
-      const contracts = await this.contractService.getContracts(profile.id);
-      return response.json(contracts);
+      const jobId = validateNumberParameter(request.params.job_id, "job_id");
+      if (profile.type === "client") {
+        const payJobResponse = this.jobService.payJob(jobId, profile);
+        return response.json(payJobResponse);
+      }
+      throw new HttpException(401, "Only clients can pay jobs");
     } catch (error) {
       next(error);
     }

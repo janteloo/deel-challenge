@@ -1,16 +1,19 @@
 import { Sequelize, DataTypes } from "sequelize";
-import Profile from "./models/profile";
-import Contract from "./models/contract";
-import Job from "./models/job";
+import { Profile } from "../models/profile";
+import { Contract } from "../models/contract";
+import { Job } from "../models/job";
 
-class Database {
-  public database: Sequelize;
+class DatasSource {
+  public dataSource: Sequelize;
 
-  initialize = (): void => {
-    this.database = new Sequelize({
+  constructor() {
+    this.dataSource = new Sequelize({
       dialect: "sqlite",
       storage: "./database.sqlite3",
     });
+  }
+
+  initialize = (): void => {
     this.init();
   };
 
@@ -37,7 +40,7 @@ class Database {
         },
       },
       {
-        sequelize: this.database,
+        sequelize: this.dataSource,
         modelName: "Profile",
       }
     );
@@ -53,7 +56,7 @@ class Database {
         },
       },
       {
-        sequelize: this.database,
+        sequelize: this.dataSource,
         modelName: "Contract",
       }
     );
@@ -77,7 +80,7 @@ class Database {
         },
       },
       {
-        sequelize: this.database,
+        sequelize: this.dataSource,
         modelName: "Job",
       }
     );
@@ -97,9 +100,9 @@ class Database {
       foreignKey: "clientId",
     });
     Contract.belongsTo(Profile, { as: "Client", foreignKey: "clientId" });
-    Contract.hasMany(Job);
-    Job.belongsTo(Contract);
+    Contract.hasMany(Job, { as: "Job", sourceKey: "id", foreignKey: "jobId" });
+    Job.belongsTo(Contract, { foreignKey: "contractId" });
   };
 }
 
-export default Database;
+export default DatasSource;

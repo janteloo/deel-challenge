@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
 
-class Job extends Model {
+export interface IJob {
   description: string;
 
   price: number;
@@ -11,5 +11,14 @@ class Job extends Model {
 
   contractId: number;
 }
+export class Job extends Model implements IJob {
+  description: string;
 
-export default Job;
+  price: number;
+
+  paid: boolean;
+
+  paymentDate: Date;
+
+  contractId: number;
+}

@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
 
-class Profile extends Model {
+export interface IProfile {
   id: number;
 
   firstName: string;
@@ -13,5 +13,16 @@ class Profile extends Model {
 
   type: string;
 }
+export class Profile extends Model implements IProfile {
+  id: number;
 
-export default Profile;
+  firstName: string;
+
+  lastName: string;
+
+  profession: string;
+
+  balance: number;
+
+  type: string;
+}

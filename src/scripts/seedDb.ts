@@ -1,7 +1,7 @@
-import Profile from "../models/profile";
-import Contract from "../models/contract";
-import Job from "../models/job";
-import Database from "../database";
+import { Profile } from "../models/profile";
+import { Contract } from "../models/contract";
+import { Job } from "../models/job";
+import DataSource from "../database/dataSource";
 
 /* WARNING THIS WILL DROP THE CURRENT DATABASE */
 const createProfiles = async () => {
@@ -219,7 +219,7 @@ const createJobs = async () => {
 };
 const seed = async () => {
   // create tables
-  const database = new Database();
+  const database = new DataSource();
   database.initialize();
 
   await Profile.sync({ force: true });

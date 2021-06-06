@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
 
-class Contract extends Model {
+export interface IContract {
   id: number;
 
   terms: string;
@@ -11,5 +11,14 @@ class Contract extends Model {
 
   contractorId: number;
 }
+export class Contract extends Model implements IContract {
+  id: number;
 
-export default Contract;
+  terms: string;
+
+  status: string;
+
+  clientId: number;
+
+  contractorId: number;
+}

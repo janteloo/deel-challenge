@@ -1,7 +1,8 @@
 import express, { Application } from "express";
 import bodyParser from "body-parser";
-import Profile from "./models/profile";
-import Database from "./database";
+import { Profile } from "./models/profile";
+import DataSource from "./database/dataSource";
+import errorMiddleware from "./middleware/errorMiddleware";
 
 declare global {
   namespace Express {
@@ -21,22 +22,27 @@ class App {
     this.port = port;
     this.initialize();
     this.initializeControllers(controllers);
+    this.initializeErrorHandler();
   }
 
   initialize = () => {
     this.app.use(bodyParser.json());
-    const sequelize = new Database();
+    const sequelize = new DataSource();
     sequelize.initialize();
-    const { database } = sequelize;
-    this.app.set("sequelize", database);
-    this.app.set("models", database.models);
+    const { dataSource } = sequelize;
+    this.app.set("sequelize", dataSource);
+    this.app.set("models", dataSource.models);
   };
 
-  private initializeControllers(controllers) {
+  private initializeControllers = (controllers) => {
     controllers.forEach((controller) => {
       this.app.use("/", controller.router);
     });
-  }
+  };
+
+  private initializeErrorHandler = () => {
+    this.app.use(errorMiddleware);
+  };
 
   public listen() {
     this.app.listen(this.port, () => {
