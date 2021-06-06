@@ -1,7 +1,7 @@
-import express from "express";
+import express, { Application } from "express";
 import bodyParser from "body-parser";
-import { Profile, sequelize } from "./model";
-import getProfile from "./middleware/getProfile";
+import Profile from "./models/profile";
+import Database from "./database";
 
 declare global {
   namespace Express {
@@ -11,23 +11,38 @@ declare global {
   }
 }
 
-const app = express();
-app.use(bodyParser.json());
-app.set("sequelize", sequelize);
-app.set("models", sequelize.models);
+class App {
+  public app: Application;
 
-/**
- * FIX ME!
- * @returns contract by id
- */
-app.get("/contracts/:id", getProfile, async (req, res) => {
-  const { Contract } = req.app.get("models");
-  const { id } = req.params;
-  const contract = await Contract.findOne({ where: { id } });
-  if (!contract) {
-    return res.status(404).end();
+  public port: number;
+
+  constructor(controllers, port) {
+    this.app = express();
+    this.port = port;
+    this.initialize();
+    this.initializeControllers(controllers);
   }
-  return res.json(contract);
-});
 
-export default app;
+  initialize = () => {
+    this.app.use(bodyParser.json());
+    const sequelize = new Database();
+    sequelize.initialize();
+    const { database } = sequelize;
+    this.app.set("sequelize", database);
+    this.app.set("models", database.models);
+  };
+
+  private initializeControllers(controllers) {
+    controllers.forEach((controller) => {
+      this.app.use("/", controller.router);
+    });
+  }
+
+  public listen() {
+    this.app.listen(this.port, () => {
+      console.log(`App listening on the port ${this.port}`);
+    });
+  }
+}
+
+export default App;

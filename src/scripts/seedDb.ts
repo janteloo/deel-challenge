@@ -1,12 +1,10 @@
-import { Profile, Contract, Job } from "../model";
+import Profile from "../models/profile";
+import Contract from "../models/contract";
+import Job from "../models/job";
+import Database from "../database";
 
 /* WARNING THIS WILL DROP THE CURRENT DATABASE */
-const seed = async () => {
-  // create tables
-  await Profile.sync({ force: true });
-  await Contract.sync({ force: true });
-  await Job.sync({ force: true });
-  // insert data
+const createProfiles = async () => {
   await Promise.all([
     Profile.create({
       id: 1,
@@ -73,7 +71,9 @@ const seed = async () => {
       type: "contractor",
     }),
   ]);
+};
 
+const createContracts = async () => {
   await Promise.all([
     Contract.create({
       id: 1,
@@ -139,7 +139,8 @@ const seed = async () => {
       contractorId: 8,
     }),
   ]);
-
+};
+const createJobs = async () => {
   await Promise.all([
     Job.create({
       description: "work",
@@ -215,6 +216,17 @@ const seed = async () => {
       contractId: 3,
     }),
   ]);
+};
+const seed = async () => {
+  // create tables
+  const database = new Database();
+  database.initialize();
+
+  await Profile.sync({ force: true });
+  await Contract.sync({ force: true });
+  await Job.sync({ force: true });
+  // insert data
+  await Promise.all([createProfiles(), createContracts(), createJobs()]);
 };
 
 seed();
