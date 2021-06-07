@@ -31,6 +31,9 @@
             "extensions": [".js", ".jsx", ".ts", ".tsx"]
           }
         }
+      },
+      "env": {
+          "jest": true
       }
   }
   

@@ -43,10 +43,7 @@ class BallanceController {
       const maximumDeposit = total > 0 ? (25 * total) / 100 : amount;
 
       if (amount <= maximumDeposit) {
-        await this.profileService.increaseBalance(
-          Number(userId),
-          Number(amount)
-        );
+        await this.profileService.increaseBalance(userId, amount);
         return response.sendStatus(200);
       }
       throw new HttpException(

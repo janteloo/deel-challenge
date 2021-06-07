@@ -45,8 +45,11 @@ class ContractController {
     try {
       const jobId = validateNumberParameter(request.params.job_id, "job_id");
       if (profile.type === "client") {
-        const payJobResponse = this.jobService.payJob(jobId, profile);
-        return response.json(payJobResponse);
+        const payJobResponse = await this.jobService.payJob(jobId, profile);
+        if (payJobResponse.success) {
+          return response.json(payJobResponse);
+        }
+        throw new HttpException(400, payJobResponse.errorMessage);
       }
       throw new HttpException(401, "Only clients can pay jobs");
     } catch (error) {

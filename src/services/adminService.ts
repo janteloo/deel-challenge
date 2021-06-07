@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Op, Sequelize } from "sequelize";
 
-import { Contract, IContract } from "../models/contract";
+import { Contract } from "../models/contract";
 import { Job } from "../models/job";
 import { Profile } from "../models/profile";
 
-interface ContractExtraInfo extends IContract {
+interface ProfessionInfo {
+  profession: string;
   totalPaid: number;
 }
 
@@ -16,33 +17,37 @@ interface ProfilePaidInfo {
 }
 
 class AdminService {
-  public getBestContract = async (
+  public getBestProfession = async (
     startDate: Date,
     endDate: Date
-  ): Promise<ContractExtraInfo> => {
+  ): Promise<ProfessionInfo> => {
     const job = await Job.findOne({
       where: { createdAt: { [Op.between]: [startDate, endDate] }, paid: true },
       include: [
         {
           model: Contract,
+          attributes: [],
+          include: [
+            {
+              model: Profile,
+              attributes: ["id", "profession"],
+              as: "Contractor",
+            },
+          ],
         },
       ],
       attributes: [[Sequelize.fn("sum", Sequelize.col("price")), "totalPaid"]],
       raw: true,
       order: Sequelize.literal("totalPaid DESC"),
-      group: ["Contract.id"],
+      group: ["Contract.Contractor.profession"],
     });
 
     const contract = { ...job } as any;
-    const contractExtraInfo: ContractExtraInfo = {
-      id: contract["Contract.id"],
-      terms: contract["Contract.terms"],
-      status: contract["Contract.status"],
-      contractorId: contract["Contract.contractorId"],
-      clientId: contract["Contract.clientId"],
+    const professionInfo: ProfessionInfo = {
+      profession: contract["Contract.Contractor.profession"],
       totalPaid: contract.totalPaid,
     };
-    return contractExtraInfo;
+    return professionInfo;
   };
 
   public getBestClients = async (

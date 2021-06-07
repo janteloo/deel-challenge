@@ -5,6 +5,10 @@ import { Profile } from "../models/profile";
 import ProfileService from "./profileService";
 import TransactionManager from "../database/transactionManager";
 
+interface JobServiceResponse {
+  success: boolean;
+  errorMessage?: string;
+}
 class JobService {
   public profileService: ProfileService;
 
@@ -39,7 +43,7 @@ class JobService {
   public payJob = async (
     jobId: number,
     clientProfile: Profile
-  ): Promise<boolean> => {
+  ): Promise<JobServiceResponse> => {
     const job = await Job.findOne({
       where: {
         id: jobId,
@@ -48,12 +52,10 @@ class JobService {
         },
       },
     });
-    console.log(`This is the balance ${clientProfile.balance}`);
     if (job) {
-      console.log("There is a job");
       const { id, balance } = clientProfile;
-      if (job.price <= balance) {
-        try {
+      try {
+        if (job.price <= balance) {
           this.transactionManager.executeTransaction(
             async (transaction: Transaction) => {
               await Job.update(
@@ -68,17 +70,29 @@ class JobService {
               );
             }
           );
-          return true;
-        } catch (error) {
-          console.log(error);
-          return false;
+          return this.buildSuccessResponse();
         }
+        return this.buildErrorResponse(
+          "Job price is bigger than current balance"
+        );
+      } catch (error) {
+        return this.buildErrorResponse(error);
       }
-      // TODO error when no balance
     }
+    return this.buildErrorResponse("Job does not exists or is already paid");
+  };
 
-    // TODO error when job does not exists
-    return false;
+  private buildSuccessResponse = (): JobServiceResponse => {
+    return {
+      success: true,
+    };
+  };
+
+  private buildErrorResponse = (errorMessage: string): JobServiceResponse => {
+    return {
+      success: false,
+      errorMessage,
+    };
   };
 }
 

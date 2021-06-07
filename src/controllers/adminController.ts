@@ -40,7 +40,7 @@ class BallanceController {
     try {
       const startDate = validateDateParameter(start as string, "start");
       const endDate = validateDateParameter(end as string, "end");
-      const contract = await this.adminService.getBestContract(
+      const contract = await this.adminService.getBestProfession(
         startDate,
         endDate
       );
