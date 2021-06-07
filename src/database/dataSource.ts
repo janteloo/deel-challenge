@@ -100,7 +100,7 @@ class DatasSource {
       foreignKey: "clientId",
     });
     Contract.belongsTo(Profile, { as: "Client", foreignKey: "clientId" });
-    Contract.hasMany(Job, { as: "Job", sourceKey: "id", foreignKey: "jobId" });
+    Contract.hasMany(Job);
     Job.belongsTo(Contract, { foreignKey: "contractId" });
   };
 }

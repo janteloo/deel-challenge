@@ -124,3 +124,36 @@ When you have finished the assignment, create a github repository and send us th
   
 
 Thank you and good luck! 🙏
+
+## Assignment Consideration
+
+The project has been migrated to Typescript, in order to improve readability, and add static typing to the code, trying to keep the project as close to the original as possible.
+
+To run the project in watch mode :
+
+* run `npm dev`.
+
+You can still run it as usual with `npm run start`, but changes won't take effect.
+
+To run test just use:
+
+* run `npm run test`.
+
+Project includes eslint / prettier integration, you can run both with:
+
+* run `npm run eslint:fix`
+
+In order to test the api you can use the integrated swagger at:
+
+`http://localhost:3001/api-docs`
+## API assumptions
+
+* ***POST*** `/balances/deposit/:userId` - Deposits money into the the the balance of a client, a client can't deposit more than 25% his total of jobs to pay. (at the deposit moment)
+
+This method does not take any parameter as the amount to pay. A body parameter "amount" has been added.
+It is not clear if a client is depositing on another client's account, or his own. As it takes a userId param (assuming all functions use the getProfile middleware), I assume the user that is logged in, will deposit money to the userId provided.
+
+## Missing parts
+
+There are a lot of tests missing, I just didn't want to let the project without any tests.
+An improvement would be to add tests at least for all services and controllers, and add a sequelize mocked database. 

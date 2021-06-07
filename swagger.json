@@ -1,0 +1,393 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Deel Backend API",
+        "version": "1.0.0",
+        "title": "Deel Task API",
+        "contact": {
+            "email": "janteloo@gmail.com"
+        }
+    },
+    "schemes": ["http"],
+    "host": "localhost:3001",
+    "basePath": "/",
+    "paths" : {
+        "/contracts" : {
+            "get" : {
+                "summary" : "Get all contracts",
+                "description": "Get all non terminated contracts for a given profile",
+                "produces": ["application/json"],
+                "tags": ["ContractController"],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "profile_id",
+                        "description": "user profile id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/contractResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/contracts/{id}" : {
+            "get" : {
+                "summary" : "Get contract",
+                "description": "Get contract for a given profile",
+                "produces": ["application/json"],
+                "tags": ["ContractController"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "contract id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "header",
+                        "name": "profile_id",
+                        "description": "user profile id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/todosResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Contract could not be found"
+                    }
+                }
+            }
+        },
+        "/jobs/unpaid" : {
+            "get" : {
+                "summary" : "Get unpaid jobs",
+                "description": "Get all unpaid jobs for a given profile",
+                "produces": ["application/json"],
+                "tags": ["JobController"],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "profile_id",
+                        "description": "user profile id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/jobContractResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/jobs/{job_id}/pay" : {
+            "post" : {
+                "summary" : "Pay for a job",
+                "description": "Endpoint for clients to pay for jobs",
+                "produces": ["application/json"],
+                "tags": ["JobController"],
+                "parameters": [
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "description": "job id to be paid",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "profile_id",
+                        "description": "user profile id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/todosResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/InvalidResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/InvalidResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/balances/deposit/{userId}" : {
+            "post" : {
+                "summary" : "Deposit money into client account",
+                "description": "Deposit money into another client's account",
+                "produces": ["application/json"],
+                "tags": ["BalanceController"],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "Client id to deposit money",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "amount",
+                        "in": "body",
+                        "description": "Amount of money to be deposited",
+                        "schema": {
+                            "type": "object",
+                            "required": true,
+                            "properties": {
+                                "amount": {
+                                    "type": "integer"
+                                }
+                            }
+
+                        }
+                    },
+                    {
+                        "in": "header",
+                        "name": "profile_id",
+                        "description": "user profile id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "422": {
+                        "description": "Amount is bigger than the maximum available deposit",
+                        "schema": {
+                            "$ref": "#/definitions/InvalidResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/best-profession" : {
+            "get" : {
+                "summary" : "Get profession that earned most money",
+                "description": "Get profession that earned most money",
+                "produces": ["application/json"],
+                "tags": ["AdminController"],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "profile_id",
+                        "description": "user profile id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "description": "start date",
+                        "required": true,
+                        "type": "string",
+                        "example": "2020-12-31"
+                    },
+                    {
+                        "in": "query",
+                        "name": "end",
+                        "description": "end date",
+                        "required": true,
+                        "type": "string",
+                        "example": "2021-12-31"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "profession": {
+                                     "type": "string"
+                                }, 
+                                "totalPaid": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/admin/best-clients" : {
+            "get" : {
+                "summary" : "Get clients that paid the most for jobs",
+                "description": "Get clients that paid the most for jobs",
+                "produces": ["application/json"],
+                "tags": ["AdminController"],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "profile_id",
+                        "description": "user profile id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "description": "start date",
+                        "required": true,
+                        "type": "string",
+                        "example": "2020-12-31"
+                    },
+                    {
+                        "in": "query",
+                        "name": "end",
+                        "description": "end date",
+                        "required": true,
+                        "type": "string",
+                        "example": "2021-12-31"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "max results",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "number"
+                                },
+                                "fullName": {
+                                     "type": "string"
+                                }, 
+                                "paid": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        }
+
+    }, 
+    
+    "definitions": {
+        "contractResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                     "type": "integer"
+                },
+                "terms": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "contractorId": {
+                    "type": "number"
+                },
+                "clientId": {
+                    "type": "number"
+                }
+            }
+        },
+        "jobContractResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "paid": {
+                    "type": "boolean"
+                },
+                "paymentDate": {
+                    "type": "string"
+                },
+                "contractrId": {
+                    "type": "number"
+                },
+                "Contract": {
+                    "type": "object",
+                    "$ref": "#/definitions/contractResponse"
+                }
+            }
+        },
+        "InvalidResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+
+        }
+    }
+}

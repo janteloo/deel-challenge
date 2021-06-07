@@ -1,8 +1,10 @@
 import express, { Application } from "express";
 import bodyParser from "body-parser";
+import swaggerUi from "swagger-ui-express";
 import { Profile } from "./models/profile";
 import DataSource from "./database/dataSource";
 import errorMiddleware from "./middleware/errorMiddleware";
+import swaggerDocument from "../swagger.json";
 
 declare global {
   namespace Express {
@@ -20,12 +22,17 @@ class App {
   constructor(controllers, port) {
     this.app = express();
     this.port = port;
+    this.app.use(
+      "/api-docs",
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerDocument)
+    );
     this.initialize();
     this.initializeControllers(controllers);
     this.initializeErrorHandler();
   }
 
-  initialize = () => {
+  private initialize = () => {
     this.app.use(bodyParser.json());
     const sequelize = new DataSource();
     sequelize.initialize();
